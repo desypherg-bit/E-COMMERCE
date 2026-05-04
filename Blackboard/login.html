@@ -14,36 +14,51 @@
     </div>
   </div>
   <main class="login-page">
-    <section class="login-card">
-      <div class="login-brand">
-        <img src="assets/blackboard-logo.svg" alt="The Blackboard logo" class="login-board-logo-image" />
-        <h1>The Blackboard</h1>
-        <p>Login to continue shopping for your computer needs.</p>
+    <section class="login-board-shell">
+      <div class="login-board-doodles" aria-hidden="true">
+        <span class="login-doodle login-doodle-1">★</span>
+        <span class="login-doodle login-doodle-2">a² + b² = c²</span>
+        <span class="login-doodle login-doodle-3">CPU + GPU = power</span>
+        <span class="login-doodle login-doodle-4">Welcome back</span>
       </div>
 
-      <form id="loginForm" class="login-form">
-        <label>
-          Username
-          <input type="text" id="username" placeholder="Enter username" required />
-        </label>
+      <section class="login-card">
+        <div class="login-brand">
+          <img src="assets/blackboard-logo.svg" alt="The Blackboard logo" class="login-board-logo-image" />
+          <h1>The Blackboard</h1>
+          <p>Login to continue shopping for your computer needs.</p>
+        </div>
 
-        <label>
-          Password
-          <div class="password-row">
-            <input type="password" id="password" placeholder="Enter password" required />
-            <button type="button" id="togglePassword">Show</button>
-          </div>
-        </label>
+        <form id="loginForm" class="login-form">
+          <label>
+            Username
+            <input type="text" id="username" placeholder="Enter username" required />
+          </label>
 
-        <p id="loginError" class="login-error hidden"></p>
+          <label>
+            Password
+            <div class="password-row">
+              <input type="password" id="password" placeholder="Enter password" required />
+              <button type="button" id="togglePassword">Show</button>
+            </div>
+          </label>
 
-        <button type="submit" class="place-order-btn">Login</button>
-      </form>
+          <p id="loginError" class="login-error hidden"></p>
 
-      <div class="demo-account">
-        <strong>Demo Accounts</strong>
-        <p>Username: <b>admin</b> | Password: <b>admin123</b></p>
-        <p>Username: <b>customer</b> | Password: <b>customer123</b></p>
+          <button type="submit" class="place-order-btn">Login</button>
+        </form>
+
+        <div class="demo-account">
+          <strong>Demo Accounts</strong>
+          <p>Username: <b>admin</b> | Password: <b>admin123</b></p>
+          <p>Username: <b>customer</b> | Password: <b>customer123</b></p>
+        </div>
+      </section>
+
+      <div class="login-board-tray" aria-hidden="true">
+        <span class="chalk-stick chalk-white"></span>
+        <span class="chalk-stick chalk-blue"></span>
+        <span class="chalk-eraser"></span>
       </div>
     </section>
   </main>
