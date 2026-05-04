@@ -2,6 +2,7 @@ const pageLoader = document.getElementById("pageLoader");
 let checkoutCart = JSON.parse(localStorage.getItem("blackboardCart")) || [];
 let orders = JSON.parse(localStorage.getItem("blackboardOrders")) || [];
 let discountCodes = JSON.parse(localStorage.getItem("blackboardDiscountCodes")) || [];
+let storeSettings = JSON.parse(localStorage.getItem("blackboardStoreSettings")) || { shippingFee: 0, freeShippingThreshold: 0 };
 let appliedDiscount = null;
 
 const checkoutItems = document.getElementById("checkoutItems");
@@ -21,6 +22,7 @@ const discountSummaryRow = document.getElementById("discountSummaryRow");
 const summaryDiscountCode = document.getElementById("summaryDiscountCode");
 const summaryDiscount = document.getElementById("summaryDiscount");
 const orderReceiptLink = document.getElementById("orderReceiptLink");
+const summaryShipping = document.getElementById("summaryShipping");
 
 const DEFAULT_STOCK = 10;
 
@@ -62,6 +64,25 @@ function getProfileKey() {
 
 function loadSavedProfile() {
   return JSON.parse(localStorage.getItem(getProfileKey())) || {};
+}
+
+function getNotificationsKey(username) {
+  return `blackboardNotifications_${username || "guest"}`;
+}
+
+function addNotification(username, title, message, type = "info") {
+  if (!username) return;
+  const key = getNotificationsKey(username);
+  const items = JSON.parse(localStorage.getItem(key)) || [];
+  items.unshift({
+    id: `NOTIF-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    title,
+    message,
+    type,
+    read: false,
+    date: new Date().toISOString()
+  });
+  localStorage.setItem(key, JSON.stringify(items.slice(0, 30)));
 }
 
 function saveProfileFromCheckout(customerName, customerPhone, customerEmail, deliveryAddress) {
@@ -107,9 +128,13 @@ function getCheckoutTotals() {
 
   const discountPercent = appliedDiscount ? Number(appliedDiscount.percent) : 0;
   const discountAmount = Math.min(subtotal, subtotal * (discountPercent / 100));
-  const totalPrice = Math.max(0, subtotal - discountAmount);
+  const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const flatShipping = Math.max(0, Number(storeSettings.shippingFee || 0));
+  const freeThreshold = Math.max(0, Number(storeSettings.freeShippingThreshold || 0));
+  const shippingFee = afterDiscount > 0 && !(freeThreshold > 0 && afterDiscount >= freeThreshold) ? flatShipping : 0;
+  const totalPrice = Math.max(0, afterDiscount + shippingFee);
 
-  return { totalItems, subtotal, discountPercent, discountAmount, totalPrice };
+  return { totalItems, subtotal, discountPercent, discountAmount, shippingFee, totalPrice };
 }
 
 function displayCheckoutItems() {
@@ -124,6 +149,7 @@ function displayCheckoutItems() {
     summaryItems.textContent = 0;
     if (summarySubtotal) summarySubtotal.textContent = formatMoney(0);
     if (discountSummaryRow) discountSummaryRow.classList.add("hidden");
+    if (summaryShipping) summaryShipping.textContent = formatMoney(0);
     summaryTotal.textContent = formatMoney(0);
     return;
   }
@@ -135,6 +161,7 @@ function displayCheckoutItems() {
       <img src="${item.image}" alt="${item.name}">
       <div>
         <strong>${item.name}</strong>
+        <small>Variation: ${item.selectedVariation || "Standard"}</small>
         <small>Qty: ${item.quantity} × ${formatMoney(item.price)}</small>
         <small>Stock before order: ${item.stock ?? DEFAULT_STOCK}</small>
       </div>
@@ -147,10 +174,11 @@ function displayCheckoutItems() {
 }
 
 function updateOrderSummary() {
-  const { totalItems, subtotal, discountAmount, totalPrice } = getCheckoutTotals();
+  const { totalItems, subtotal, discountAmount, shippingFee, totalPrice } = getCheckoutTotals();
 
   summaryItems.textContent = totalItems;
   if (summarySubtotal) summarySubtotal.textContent = formatMoney(subtotal);
+  if (summaryShipping) summaryShipping.textContent = formatMoney(shippingFee);
   summaryTotal.textContent = formatMoney(totalPrice);
 
   if (discountSummaryRow && summaryDiscount && summaryDiscountCode) {
@@ -257,10 +285,16 @@ function getCurrentStoredStock(item, productEdits, addedProducts) {
 function hasEnoughStock() {
   const productEdits = JSON.parse(localStorage.getItem("blackboardProductEdits")) || {};
   const addedProducts = JSON.parse(localStorage.getItem("blackboardAddedProducts")) || [];
+  const quantityByProduct = {};
 
-  for (const item of checkoutCart) {
+  checkoutCart.forEach(item => {
+    quantityByProduct[item.id] = (quantityByProduct[item.id] || 0) + Number(item.quantity || 0);
+  });
+
+  for (const productId of Object.keys(quantityByProduct)) {
+    const item = checkoutCart.find(cartItem => String(cartItem.id) === String(productId));
     const currentStock = getCurrentStoredStock(item, productEdits, addedProducts);
-    if (item.quantity > currentStock) {
+    if (quantityByProduct[productId] > currentStock) {
       alert(`${item.name} only has ${currentStock} stock left. Please update your cart.`);
       return false;
     }
@@ -298,7 +332,7 @@ function saveOrder(paymentMethod) {
   const customerPhone = document.getElementById("customerPhone").value.trim();
   const customerEmail = document.getElementById("customerEmail").value.trim();
   const deliveryAddress = document.getElementById("deliveryAddress").value.trim();
-  const { totalItems, subtotal, discountPercent, discountAmount, totalPrice } = getCheckoutTotals();
+  const { totalItems, subtotal, discountPercent, discountAmount, shippingFee, totalPrice } = getCheckoutTotals();
   const orderId = `BB-${Date.now()}`;
 
   const order = {
@@ -318,6 +352,7 @@ function saveOrder(paymentMethod) {
     discountCode: appliedDiscount ? appliedDiscount.code : "",
     discountPercent,
     discountAmount,
+    shippingFee,
     totalPrice,
     items: checkoutCart.map(item => ({
       id: item.id,
@@ -325,12 +360,15 @@ function saveOrder(paymentMethod) {
       category: item.category,
       price: item.price,
       quantity: item.quantity,
-      image: item.image
+      image: item.image,
+      selectedVariation: item.selectedVariation || "Standard"
     }))
   };
 
   orders.push(order);
   localStorage.setItem("blackboardOrders", JSON.stringify(orders));
+  addNotification(order.username, "Order Placed", `Your order ${order.orderId} was placed successfully and is now Pending.`, "success");
+  addNotification("admin", "New Order", `${order.customerName} placed ${order.orderId}.`, "info");
   return order;
 }
 

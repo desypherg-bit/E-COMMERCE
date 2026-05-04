@@ -49,7 +49,7 @@ function renderReceipt() {
 
   const rows = order.items.map(item => `
     <tr>
-      <td>${escapeHtml(item.name)}</td>
+      <td>${escapeHtml(item.name)}<br><small>${escapeHtml(item.selectedVariation || "Standard")}</small></td>
       <td>${escapeHtml(item.category)}</td>
       <td>${item.quantity}</td>
       <td>${formatMoney(item.price)}</td>
@@ -89,6 +89,7 @@ function renderReceipt() {
     <div class="receipt-total-box">
       <div><span>Subtotal</span><strong>${formatMoney(order.subtotal || order.totalPrice)}</strong></div>
       <div><span>Discount ${order.discountCode ? `(${escapeHtml(order.discountCode)})` : ""}</span><strong>-${formatMoney(order.discountAmount || 0)}</strong></div>
+      <div><span>Shipping</span><strong>${formatMoney(order.shippingFee || 0)}</strong></div>
       <div class="receipt-grand-total"><span>Total</span><strong>${formatMoney(order.totalPrice)}</strong></div>
     </div>
 

@@ -56,6 +56,19 @@
       </div>
     </section>
 
+    <section id="notificationsSection" class="notifications-section">
+      <div class="section-title-row">
+        <div>
+          <h2>Notifications</h2>
+          <p>Updates about orders, cancellation requests, and account activity.</p>
+        </div>
+        <button id="clearNotificationsBtn" class="secondary-btn" type="button">Clear Notifications</button>
+      </div>
+      <div id="notificationItems" class="notification-items">
+        <p>No notifications yet.</p>
+      </div>
+    </section>
+
 
     <section id="adminProductSection" class="admin-product-section hidden">
       <div class="section-title-row">
@@ -135,6 +148,53 @@
         </div>
       </div>
 
+
+
+      <div class="admin-settings-box">
+        <div class="section-title-row">
+          <div>
+            <h3>Shipping Settings</h3>
+            <p>Set the delivery fee and optional free shipping minimum.</p>
+          </div>
+        </div>
+
+        <form id="shippingSettingsForm" class="admin-discount-form">
+          <label>
+            Flat Shipping Fee
+            <input type="number" id="shippingFeeInput" placeholder="Example: 120" min="0" step="0.01" />
+          </label>
+          <label>
+            Free Shipping Minimum
+            <input type="number" id="freeShippingThresholdInput" placeholder="Example: 5000" min="0" step="0.01" />
+          </label>
+          <button type="submit" class="admin-add-btn small-admin-btn">Save Shipping</button>
+        </form>
+      </div>
+
+      <div class="admin-customer-box">
+        <div class="section-title-row">
+          <div>
+            <h3>Customer Management</h3>
+            <p>View customers, order counts, total spending, and account status.</p>
+          </div>
+        </div>
+        <div id="adminCustomerList" class="admin-customer-list">
+          <p>No customer activity yet.</p>
+        </div>
+      </div>
+
+      <div class="admin-deleted-products-box">
+        <div class="section-title-row">
+          <div>
+            <h3>Deleted Products</h3>
+            <p>Restore products that were deleted from the shop.</p>
+          </div>
+        </div>
+        <div id="deletedProductList" class="deleted-product-list">
+          <p>No deleted products yet.</p>
+        </div>
+      </div>
+
       <div class="admin-category-box">
         <div class="section-title-row">
           <div>
@@ -180,6 +240,12 @@
           <input type="number" id="newProductStock" placeholder="Example: 15" min="0" step="1" required />
         </label>
 
+        <label class="full-width-field">
+          Product Variations
+          <input type="text" id="newProductVariations" placeholder="Example: Black, White, Blue or 256GB, 512GB" />
+          <small class="form-help">Separate each variation with a comma. Leave blank for Standard.</small>
+        </label>
+
         <label>
           Image URL
           <input type="url" id="newProductImage" placeholder="Paste image link here" required />
@@ -207,6 +273,21 @@
       </div>
       <div id="wishlistItems" class="wishlist-items">
         <p>No favorite products yet.</p>
+      </div>
+    </section>
+
+
+
+    <section id="recentlyViewedSection" class="recently-viewed-section">
+      <div class="section-title-row">
+        <div>
+          <h2>Recently Viewed</h2>
+          <p>Products you opened recently.</p>
+        </div>
+        <button id="clearRecentlyViewedBtn" class="secondary-btn" type="button">Clear Recently Viewed</button>
+      </div>
+      <div id="recentlyViewedItems" class="recently-viewed-items">
+        <p>No recently viewed products yet.</p>
       </div>
     </section>
 
@@ -263,6 +344,10 @@
           <p id="modalProductDescription" class="modal-product-description"></p>
           <p><strong>Category:</strong> <span id="modalProductCategory"></span></p>
           <p><strong>Stock:</strong> <span id="modalProductStock"></span></p>
+          <label id="modalVariationWrap" class="modal-variation-wrap hidden">
+            Variation
+            <select id="modalProductVariation"></select>
+          </label>
           <p class="modal-product-price" id="modalProductPrice"></p>
           <button id="modalAddToCartBtn" class="place-order-btn" type="button">Add to Cart</button>
         </div>
@@ -320,7 +405,7 @@
   <footer class="support-footer">
     <div class="container support-footer-content">
       <div class="support-info">
-        <h2>Need help?</h2>
+        <h2 style="color: white;">Need help?</h2>
         <p>Contact support for order concerns, product questions, or payment help.</p>
         <p><strong>Support Email:</strong> support@theblackboard.com</p>
       </div>

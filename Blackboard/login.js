@@ -48,6 +48,13 @@ loginForm.addEventListener("submit", function(event) {
     return;
   }
 
+  const customerStatuses = JSON.parse(localStorage.getItem("blackboardCustomerStatuses")) || {};
+  if (user.role !== "admin" && customerStatuses[user.username] === "Blocked") {
+    loginError.textContent = "This customer account is currently blocked. Please contact support.";
+    loginError.classList.remove("hidden");
+    return;
+  }
+
   localStorage.setItem("blackboardUser", JSON.stringify({
     username: user.username,
     name: user.name,

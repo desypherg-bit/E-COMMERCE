@@ -2187,3 +2187,120 @@ body.modal-open {
     border: none !important;
   }
 }
+
+
+.notifications-section,
+.recently-viewed-section,
+.admin-settings-box,
+.admin-customer-box,
+.admin-deleted-products-box {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,247,238,0.96));
+  border: 1px solid rgba(140, 110, 72, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  padding: 18px;
+  margin-bottom: 30px;
+}
+
+.notification-items,
+.recently-viewed-items,
+.admin-customer-list,
+.deleted-product-list {
+  display: grid;
+  gap: 12px;
+}
+
+.notification-item,
+.recently-viewed-item,
+.admin-customer-item,
+.deleted-product-item {
+  display: grid;
+  grid-template-columns: 74px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #eee3d0;
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.84);
+}
+
+.notification-item {
+  grid-template-columns: 1fr;
+  border-left: 5px solid #8a5329;
+}
+
+.notification-success { border-left-color: #27ae60; }
+.notification-warning { border-left-color: #f39c12; }
+.notification-info { border-left-color: #3498db; }
+
+.recently-viewed-item img,
+.deleted-product-item img {
+  width: 74px;
+  height: 74px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: white;
+}
+
+.recently-viewed-item button,
+.deleted-product-item button,
+.admin-customer-item button {
+  padding: 9px 12px;
+  border: 1px solid rgba(138, 83, 41, 0.55);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f7f0e2 0%, #eadcc0 100%);
+  color: #573117;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.customer-status-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-status {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.customer-active {
+  background: #eafaf1;
+  color: #1e8449;
+}
+
+.customer-blocked {
+  background: #ffecec;
+  color: #c0392b;
+}
+
+.form-help {
+  color: #777;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.modal-variation-wrap {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0;
+  font-weight: bold;
+}
+
+.modal-variation-wrap select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .recently-viewed-item,
+  .admin-customer-item,
+  .deleted-product-item {
+    grid-template-columns: 1fr;
+  }
+}

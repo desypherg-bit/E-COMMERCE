@@ -8,6 +8,9 @@ let deletedProductIds = JSON.parse(localStorage.getItem("blackboardDeletedProduc
 let orders = JSON.parse(localStorage.getItem("blackboardOrders")) || [];
 let discountCodes = JSON.parse(localStorage.getItem("blackboardDiscountCodes")) || [];
 let productReviews = JSON.parse(localStorage.getItem("blackboardProductReviews")) || [];
+let deletedProductArchive = JSON.parse(localStorage.getItem("blackboardDeletedProductArchive")) || [];
+let storeSettings = JSON.parse(localStorage.getItem("blackboardStoreSettings")) || { shippingFee: 0, freeShippingThreshold: 0 };
+let recentlyViewed = [];
 let editingProductId = null;
 let activeModalProductId = null;
 let wishlist = [];
@@ -75,10 +78,22 @@ const submitReviewBtn = document.getElementById("submitReviewBtn");
 const reviewMessage = document.getElementById("reviewMessage");
 const productReviewList = document.getElementById("productReviewList");
 const relatedProducts = document.getElementById("relatedProducts");
+const deletedProductList = document.getElementById("deletedProductList");
+const adminCustomerList = document.getElementById("adminCustomerList");
+const shippingSettingsForm = document.getElementById("shippingSettingsForm");
+const shippingFeeInput = document.getElementById("shippingFeeInput");
+const freeShippingThresholdInput = document.getElementById("freeShippingThresholdInput");
+const notificationItems = document.getElementById("notificationItems");
+const clearNotificationsBtn = document.getElementById("clearNotificationsBtn");
+const recentlyViewedItems = document.getElementById("recentlyViewedItems");
+const clearRecentlyViewedBtn = document.getElementById("clearRecentlyViewedBtn");
+const modalVariationWrap = document.getElementById("modalVariationWrap");
+const modalProductVariation = document.getElementById("modalProductVariation");
 
 const newProductName = document.getElementById("newProductName");
 const newProductPrice = document.getElementById("newProductPrice");
 const newProductStock = document.getElementById("newProductStock");
+const newProductVariations = document.getElementById("newProductVariations");
 const newProductImage = document.getElementById("newProductImage");
 const newProductDescription = document.getElementById("newProductDescription");
 
@@ -87,6 +102,7 @@ fetch("products.json")
   .then(data => {
     baseProducts = data;
     wishlist = loadWishlist();
+    recentlyViewed = loadRecentlyViewed();
     rebuildProducts();
     syncCartWithProducts();
     refreshCategories();
@@ -94,6 +110,11 @@ fetch("products.json")
     setupAdminPanel();
     renderWishlist();
     renderOrderHistory();
+    renderDeletedProducts();
+    renderAdminCustomers();
+    renderNotifications();
+    renderRecentlyViewed();
+    renderShippingSettings();
     updateCart();
     updateAdminDashboard();
     hidePageLoader();
@@ -144,6 +165,65 @@ function saveProductEdits() {
 
 function saveDeletedProducts() {
   localStorage.setItem("blackboardDeletedProducts", JSON.stringify(deletedProductIds));
+}
+
+function saveDeletedProductArchive() {
+  localStorage.setItem("blackboardDeletedProductArchive", JSON.stringify(deletedProductArchive));
+}
+
+function saveStoreSettings() {
+  localStorage.setItem("blackboardStoreSettings", JSON.stringify(storeSettings));
+}
+
+function getNotificationsKey(username) {
+  return `blackboardNotifications_${username || "guest"}`;
+}
+
+function loadNotifications(username) {
+  return JSON.parse(localStorage.getItem(getNotificationsKey(username))) || [];
+}
+
+function saveNotifications(username, items) {
+  localStorage.setItem(getNotificationsKey(username), JSON.stringify(items));
+}
+
+function addNotification(username, title, message, type = "info") {
+  if (!username) return;
+  const items = loadNotifications(username);
+  items.unshift({
+    id: `NOTIF-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    title,
+    message,
+    type,
+    read: false,
+    date: new Date().toISOString()
+  });
+  saveNotifications(username, items.slice(0, 30));
+}
+
+function getRecentlyViewedKey() {
+  const user = getLoggedInUserFromStorage();
+  return `blackboardRecentlyViewed_${user ? user.username : "guest"}`;
+}
+
+function loadRecentlyViewed() {
+  return JSON.parse(localStorage.getItem(getRecentlyViewedKey())) || [];
+}
+
+function saveRecentlyViewed() {
+  localStorage.setItem(getRecentlyViewedKey(), JSON.stringify(recentlyViewed));
+}
+
+function parseVariations(value) {
+  if (Array.isArray(value)) {
+    return [...new Set(value.map(item => String(item).trim()).filter(Boolean))];
+  }
+  return [...new Set(String(value || "").split(",").map(item => item.trim()).filter(Boolean))];
+}
+
+function getDefaultVariation(product) {
+  const variations = parseVariations(product.variations);
+  return variations.length > 0 ? variations[0] : "Standard";
 }
 
 function saveOrders() {
@@ -240,7 +320,8 @@ function normalizeProduct(product) {
   return {
     ...product,
     price: Number(product.price),
-    stock: Number.isFinite(stock) ? Math.max(0, Math.floor(stock)) : DEFAULT_STOCK
+    stock: Number.isFinite(stock) ? Math.max(0, Math.floor(stock)) : DEFAULT_STOCK,
+    variations: parseVariations(product.variations)
   };
 }
 
@@ -269,7 +350,8 @@ function syncCartWithProducts() {
 
       const quantity = Math.min(item.quantity, product.stock);
       if (quantity <= 0) return null;
-      return { ...product, quantity };
+      const selectedVariation = item.selectedVariation || getDefaultVariation(product);
+      return { ...product, selectedVariation, quantity };
     })
     .filter(Boolean);
 
@@ -388,6 +470,221 @@ function toggleWishlist(productId) {
   renderWishlist();
 }
 
+
+function renderNotifications() {
+  if (!notificationItems) return;
+  const user = getLoggedInUserFromStorage();
+  if (!user) return;
+  const items = loadNotifications(user.username);
+  notificationItems.innerHTML = "";
+  if (items.length === 0) {
+    notificationItems.innerHTML = "<p>No notifications yet.</p>";
+    return;
+  }
+  items.slice(0, 8).forEach(item => {
+    const row = document.createElement("div");
+    row.classList.add("notification-item", `notification-${item.type || "info"}`);
+    row.innerHTML = `
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <p>${escapeHtml(item.message)}</p>
+        <small>${new Date(item.date).toLocaleString()}</small>
+      </div>
+    `;
+    notificationItems.appendChild(row);
+  });
+}
+
+function renderRecentlyViewed() {
+  if (!recentlyViewedItems) return;
+  recentlyViewed = recentlyViewed.filter(productId => products.some(product => product.id === productId));
+  saveRecentlyViewed();
+  recentlyViewedItems.innerHTML = "";
+  if (recentlyViewed.length === 0) {
+    recentlyViewedItems.innerHTML = "<p>No recently viewed products yet.</p>";
+    return;
+  }
+  recentlyViewed.forEach(productId => {
+    const product = products.find(item => item.id === productId);
+    if (!product) return;
+    const row = document.createElement("div");
+    row.classList.add("recently-viewed-item");
+    row.innerHTML = `
+      <img src="${product.image}" alt="${product.name}">
+      <div>
+        <strong>${product.name}</strong>
+        <small>${product.category} • ${formatMoney(product.price)}</small>
+      </div>
+      <button type="button" onclick="openProductModal(${product.id})">View</button>
+    `;
+    recentlyViewedItems.appendChild(row);
+  });
+}
+
+function addRecentlyViewed(productId) {
+  recentlyViewed = recentlyViewed.filter(id => Number(id) !== Number(productId));
+  recentlyViewed.unshift(productId);
+  recentlyViewed = recentlyViewed.slice(0, 8);
+  saveRecentlyViewed();
+  renderRecentlyViewed();
+}
+
+function renderDeletedProducts() {
+  if (!deletedProductList) return;
+  deletedProductIds.forEach(productId => {
+    if (deletedProductArchive.some(item => Number(item.id) === Number(productId))) return;
+    const originalProduct = baseProducts.find(item => Number(item.id) === Number(productId));
+    if (originalProduct) {
+      deletedProductArchive.push({ ...applySavedEdit(originalProduct), deletedAt: new Date().toISOString() });
+    }
+  });
+  saveDeletedProductArchive();
+  deletedProductList.innerHTML = "";
+  const archived = deletedProductArchive.slice().reverse();
+  if (archived.length === 0) {
+    deletedProductList.innerHTML = "<p>No deleted products yet.</p>";
+    return;
+  }
+  archived.forEach(product => {
+    const row = document.createElement("div");
+    row.classList.add("deleted-product-item");
+    row.innerHTML = `
+      <img src="${product.image}" alt="${product.name}">
+      <div>
+        <strong>${escapeHtml(product.name)}</strong>
+        <small>${escapeHtml(product.category)} • ${formatMoney(product.price)} • Stock: ${product.stock ?? DEFAULT_STOCK}</small>
+        <small>Deleted: ${product.deletedAt ? new Date(product.deletedAt).toLocaleString() : "Recently"}</small>
+      </div>
+      <button type="button" onclick="restoreDeletedProduct(${product.id})">Restore</button>
+    `;
+    deletedProductList.appendChild(row);
+  });
+}
+
+function restoreDeletedProduct(productId) {
+  if (!currentUserIsAdmin()) {
+    showAdminMessage("Only the admin account can restore products.", "error");
+    return;
+  }
+  const archived = deletedProductArchive.find(item => Number(item.id) === Number(productId));
+  if (!archived) {
+    showAdminMessage("Deleted product not found.", "error");
+    return;
+  }
+  deletedProductIds = deletedProductIds.filter(id => Number(id) !== Number(productId));
+  deletedProductArchive = deletedProductArchive.filter(item => Number(item.id) !== Number(productId));
+  const { deletedAt, ...restored } = archived;
+  if (archived.addedByAdmin && !addedProducts.some(item => Number(item.id) === Number(productId))) {
+    addedProducts.push({ ...restored, addedByAdmin: true });
+    saveAddedProducts();
+  } else if (!archived.addedByAdmin) {
+    productEdits[productId] = {
+      name: restored.name,
+      category: restored.category,
+      price: Number(restored.price),
+      stock: Math.max(0, Math.floor(Number(restored.stock ?? DEFAULT_STOCK))),
+      variations: parseVariations(restored.variations),
+      image: restored.image,
+      description: restored.description
+    };
+    saveProductEdits();
+  }
+  saveDeletedProducts();
+  saveDeletedProductArchive();
+  rebuildProducts();
+  refreshCategories();
+  filterProducts();
+  renderDeletedProducts();
+  updateAdminDashboard();
+  showAdminMessage(`${archived.name} has been restored.`);
+}
+
+function getCustomerStatuses() {
+  return JSON.parse(localStorage.getItem("blackboardCustomerStatuses")) || {};
+}
+
+function saveCustomerStatuses(statuses) {
+  localStorage.setItem("blackboardCustomerStatuses", JSON.stringify(statuses));
+}
+
+function getKnownCustomers() {
+  const known = new Map();
+  (JSON.parse(localStorage.getItem("blackboardOrders")) || []).forEach(order => {
+    if (!order.username || order.username === "guest") return;
+    known.set(order.username, {
+      username: order.username,
+      name: order.customerName || order.accountName || order.username,
+      email: order.customerEmail || "",
+      phone: order.customerPhone || ""
+    });
+  });
+  Object.keys(localStorage).forEach(key => {
+    if (!key.startsWith("blackboardProfile_")) return;
+    const username = key.replace("blackboardProfile_", "");
+    if (username === "guest") return;
+    const profile = JSON.parse(localStorage.getItem(key)) || {};
+    known.set(username, {
+      username,
+      name: profile.fullName || username,
+      email: profile.email || "",
+      phone: profile.phone || ""
+    });
+  });
+  if (!known.has("customer")) known.set("customer", { username: "customer", name: "Customer", email: "", phone: "" });
+  return [...known.values()].sort((a, b) => a.username.localeCompare(b.username));
+}
+
+function renderAdminCustomers() {
+  if (!adminCustomerList || !currentUserIsAdmin()) return;
+  const statuses = getCustomerStatuses();
+  const allOrders = JSON.parse(localStorage.getItem("blackboardOrders")) || [];
+  const customers = getKnownCustomers();
+  adminCustomerList.innerHTML = "";
+  if (customers.length === 0) {
+    adminCustomerList.innerHTML = "<p>No customer activity yet.</p>";
+    return;
+  }
+  customers.forEach(customer => {
+    const customerOrders = allOrders.filter(order => order.username === customer.username);
+    const orderCount = customerOrders.length;
+    const totalSpent = customerOrders
+      .filter(order => order.status !== "Cancelled")
+      .reduce((sum, order) => sum + Number(order.totalPrice || 0), 0);
+    const status = statuses[customer.username] || "Active";
+    const row = document.createElement("div");
+    row.classList.add("admin-customer-item");
+    row.innerHTML = `
+      <div>
+        <strong>${escapeHtml(customer.name)}</strong>
+        <small>@${escapeHtml(customer.username)} • ${escapeHtml(customer.email || "No email")} • ${escapeHtml(customer.phone || "No phone")}</small>
+        <small>Orders: ${orderCount} • Total Spent: ${formatMoney(totalSpent)}</small>
+      </div>
+      <div class="customer-status-actions">
+        <span class="customer-status ${status === "Blocked" ? "customer-blocked" : "customer-active"}">${status}</span>
+        <button type="button" onclick="toggleCustomerStatus('${customer.username}')">${status === "Blocked" ? "Unblock" : "Block"}</button>
+      </div>
+    `;
+    adminCustomerList.appendChild(row);
+  });
+}
+
+function toggleCustomerStatus(username) {
+  if (!currentUserIsAdmin()) return;
+  const statuses = getCustomerStatuses();
+  statuses[username] = statuses[username] === "Blocked" ? "Active" : "Blocked";
+  saveCustomerStatuses(statuses);
+  addNotification(username, "Account Status Updated", `Your account status is now ${statuses[username]}.`, statuses[username] === "Blocked" ? "warning" : "success");
+  renderAdminCustomers();
+  renderNotifications();
+  showAdminMessage(`${username} is now ${statuses[username]}.`);
+}
+
+function renderShippingSettings() {
+  if (!shippingFeeInput || !freeShippingThresholdInput) return;
+  shippingFeeInput.value = Number(storeSettings.shippingFee || 0);
+  freeShippingThresholdInput.value = Number(storeSettings.freeShippingThreshold || 0);
+}
+
 function renderWishlist() {
   wishlistItems.innerHTML = "";
   wishlist = wishlist.filter(productId => products.some(product => product.id === productId));
@@ -481,6 +778,7 @@ function displayProducts(items) {
     const reviewStats = getReviewStats(product.id);
     const favoriteText = isFavorited(product.id) ? "♥ Favorited" : "♡ Favorite";
     const addDisabled = product.stock <= 0 ? "disabled" : "";
+    const variationLabel = product.variations && product.variations.length > 0 ? `<p><strong>Options:</strong> ${product.variations.join(", ")}</p>` : "";
 
     card.innerHTML = `
       <button class="product-image-btn" type="button" onclick="openProductModal(${product.id})">
@@ -489,6 +787,7 @@ function displayProducts(items) {
       <h3>${product.name}</h3>
       <p>${product.description}</p>
       <p><strong>Category:</strong> ${product.category}</p>
+      ${variationLabel}
       <p class="product-rating-summary">${reviewStats.label}</p>
       <p class="stock-badge ${stockClass}">${stockLabel}</p>
       ${adminBadge}
@@ -510,17 +809,31 @@ function openProductModal(productId) {
   if (!product || !productModal) return;
 
   activeModalProductId = product.id;
+  addRecentlyViewed(product.id);
   modalProductImage.src = product.image;
   modalProductImage.alt = product.name;
   modalProductName.textContent = product.name;
   modalProductDescription.textContent = product.description;
   modalProductCategory.textContent = product.category;
   modalProductStock.textContent = product.stock <= 0 ? "Out of stock" : product.stock;
+  if (modalVariationWrap && modalProductVariation) {
+    const variations = parseVariations(product.variations);
+    modalVariationWrap.classList.toggle("hidden", variations.length === 0);
+    modalProductVariation.innerHTML = "";
+    const options = variations.length > 0 ? variations : ["Standard"];
+    options.forEach(variation => {
+      const option = document.createElement("option");
+      option.value = variation;
+      option.textContent = variation;
+      modalProductVariation.appendChild(option);
+    });
+  }
   modalProductPrice.textContent = formatMoney(product.price);
   modalAddToCartBtn.disabled = product.stock <= 0;
   modalAddToCartBtn.textContent = product.stock <= 0 ? "Out of Stock" : "Add to Cart";
   modalAddToCartBtn.onclick = function() {
-    addToCart(product.id);
+    const selectedVariation = modalProductVariation ? modalProductVariation.value : getDefaultVariation(product);
+    addToCart(product.id, selectedVariation);
     closeProductDetails();
   };
 
@@ -719,16 +1032,17 @@ function closeProductDetails() {
   document.body.classList.remove("modal-open");
 }
 
-function addToCart(productId) {
+function addToCart(productId, variation = null) {
   const product = products.find(p => p.id === productId);
   if (!product) return;
+  const selectedVariation = variation || getDefaultVariation(product);
 
   if (product.stock <= 0) {
     alert("This product is out of stock.");
     return;
   }
 
-  const existingItem = cart.find(item => item.id === productId);
+  const existingItem = cart.find(item => item.id === productId && (item.selectedVariation || "Standard") === selectedVariation);
 
   if (existingItem) {
     if (existingItem.quantity >= product.stock) {
@@ -737,15 +1051,15 @@ function addToCart(productId) {
     }
     existingItem.quantity += 1;
   } else {
-    cart.push({ ...product, quantity: 1 });
+    cart.push({ ...product, selectedVariation, quantity: 1 });
   }
 
   saveCart();
   updateCart();
 }
 
-function increaseQuantity(productId) {
-  const item = cart.find(item => item.id === productId);
+function increaseQuantity(productId, variation = "Standard") {
+  const item = cart.find(item => item.id === productId && (item.selectedVariation || "Standard") === variation);
   const product = products.find(product => product.id === productId);
   if (!item || !product) return;
 
@@ -759,8 +1073,8 @@ function increaseQuantity(productId) {
   updateCart();
 }
 
-function decreaseQuantity(productId) {
-  const item = cart.find(item => item.id === productId);
+function decreaseQuantity(productId, variation = "Standard") {
+  const item = cart.find(item => item.id === productId && (item.selectedVariation || "Standard") === variation);
   if (!item) return;
 
   item.quantity -= 1;
@@ -770,8 +1084,8 @@ function decreaseQuantity(productId) {
   updateCart();
 }
 
-function removeFromCart(productId) {
-  cart = cart.filter(item => item.id !== productId);
+function removeFromCart(productId, variation = "Standard") {
+  cart = cart.filter(item => !(item.id === productId && (item.selectedVariation || "Standard") === variation));
   saveCart();
   updateCart();
 }
@@ -808,15 +1122,16 @@ function updateCart() {
     row.innerHTML = `
       <div>
         <strong>${item.name}</strong><br>
+        <small>Variation: ${escapeHtml(item.selectedVariation || "Standard")}</small><br>
         Qty: ${item.quantity} × ${formatMoney(item.price)}<br>
         <small>Available stock: ${item.stock}</small>
       </div>
       <div class="cart-actions">
         <strong>${formatMoney(item.quantity * item.price)}</strong>
         <div>
-          <button onclick="decreaseQuantity(${item.id})">−</button>
-          <button onclick="increaseQuantity(${item.id})">+</button>
-          <button onclick="removeFromCart(${item.id})">Remove</button>
+          <button onclick='decreaseQuantity(${item.id}, ${JSON.stringify(item.selectedVariation || "Standard")})'>−</button>
+          <button onclick='increaseQuantity(${item.id}, ${JSON.stringify(item.selectedVariation || "Standard")})'>+</button>
+          <button onclick='removeFromCart(${item.id}, ${JSON.stringify(item.selectedVariation || "Standard")})'>Remove</button>
         </div>
       </div>
     `;
@@ -848,6 +1163,9 @@ function setupAdminPanel() {
 
   adminProductSection.classList.remove("hidden");
   renderDiscountCodes();
+  renderDeletedProducts();
+  renderAdminCustomers();
+  renderShippingSettings();
 }
 
 function resetProductForm() {
@@ -862,10 +1180,11 @@ function getProductFormData() {
   const category = newProductCategory.value;
   const price = Number(newProductPrice.value);
   const stock = Number(newProductStock.value);
+  const variations = parseVariations(newProductVariations ? newProductVariations.value : "");
   const image = newProductImage.value.trim();
   const description = newProductDescription.value.trim();
 
-  return { name, category, price, stock, image, description };
+  return { name, category, price, stock, variations, image, description };
 }
 
 function validateProductData(productData) {
@@ -893,7 +1212,8 @@ function updateProductInCart(updatedProduct) {
       if (item.id !== updatedProduct.id) return item;
       const quantity = Math.min(item.quantity, updatedProduct.stock);
       if (quantity <= 0) return null;
-      return { ...updatedProduct, quantity };
+      const selectedVariation = item.selectedVariation || getDefaultVariation(updatedProduct);
+      return { ...updatedProduct, selectedVariation, quantity };
     })
     .filter(Boolean);
   saveCart();
@@ -914,6 +1234,10 @@ function deleteProduct(productId) {
   const confirmDelete = confirm(`Delete ${product.name} from the shop?`);
   if (!confirmDelete) return;
 
+  const archiveEntry = { ...product, deletedAt: new Date().toISOString() };
+  deletedProductArchive = deletedProductArchive.filter(item => Number(item.id) !== Number(productId));
+  deletedProductArchive.push(archiveEntry);
+
   addedProducts = addedProducts.filter(item => item.id !== productId);
   delete productEdits[productId];
 
@@ -921,18 +1245,18 @@ function deleteProduct(productId) {
 
   cart = cart.filter(item => item.id !== productId);
   wishlist = wishlist.filter(id => id !== productId);
-  productReviews = productReviews.filter(review => Number(review.productId) !== Number(productId));
 
   saveAddedProducts();
   saveProductEdits();
   saveDeletedProducts();
-  saveProductReviews();
+  saveDeletedProductArchive();
   saveCart();
   saveWishlist();
   rebuildProducts();
   refreshCategories();
   filterProducts();
   renderWishlist();
+  renderDeletedProducts();
   updateCart();
   updateAdminDashboard();
   closeProductDetails();
@@ -957,6 +1281,7 @@ function startEditProduct(productId) {
   newProductCategory.value = product.category;
   newProductPrice.value = product.price;
   newProductStock.value = product.stock;
+  if (newProductVariations) newProductVariations.value = parseVariations(product.variations).join(", ");
   newProductImage.value = product.image;
   newProductDescription.value = product.description;
 
@@ -983,6 +1308,7 @@ function saveEditedProduct(productId, productData) {
   refreshCategories();
   filterProducts();
   renderWishlist();
+  renderDeletedProducts();
   updateCart();
   updateAdminDashboard();
   resetProductForm();
@@ -1034,10 +1360,11 @@ function renderOrderHistory() {
     const row = document.createElement("div");
     row.classList.add("order-history-item");
 
-    const itemSummary = order.items.map(item => `${item.quantity}× ${item.name}`).join(", ");
+    const itemSummary = order.items.map(item => `${item.quantity}× ${item.name}${item.selectedVariation ? ` (${item.selectedVariation})` : ""}`).join(", ");
     const discountLine = order.discountCode
       ? `<small>Discount: ${order.discountCode} (${order.discountPercent}% off, -${formatMoney(order.discountAmount || 0)})</small>`
       : "";
+    const shippingLine = `<small>Shipping Fee: ${formatMoney(order.shippingFee || 0)}</small>`;
 
     const status = order.status || "Pending";
     const statusBadge = `<span class="order-status-badge ${getOrderStatusClass(status)}">${status}</span>`;
@@ -1071,6 +1398,7 @@ function renderOrderHistory() {
         <small>${new Date(order.date).toLocaleString()} • ${order.paymentMethod}</small>
         <p>${itemSummary}</p>
         ${discountLine}
+        ${shippingLine}
         <small>Customer: ${order.customerName} • ${order.customerPhone || "No phone"} • ${order.customerEmail || "No email"}</small>
         <small>Address: ${order.deliveryAddress || "No address"}</small>
         ${cancellationNote}
@@ -1112,10 +1440,14 @@ function requestOrderCancellation(orderId) {
   if (!confirmRequest) return;
 
   order.status = "Cancellation Requested";
+  addNotification("admin", "Cancellation Requested", `${order.customerName || order.username} requested cancellation for ${order.orderId}.`, "warning");
+  addNotification(user.username, "Cancellation Request Sent", `Your cancellation request for ${order.orderId} was sent to admin.`, "info");
   order.cancellationRequestedAt = new Date().toISOString();
   order.statusUpdatedAt = new Date().toISOString();
   saveOrders();
   renderOrderHistory();
+  renderNotifications();
+  renderAdminCustomers();
   updateAdminDashboard();
 }
 
@@ -1141,8 +1473,12 @@ function updateOrderStatus(orderId, newStatus) {
     return;
   }
 
+  const oldStatus = order.status || "Pending";
   order.status = newStatus;
   order.statusUpdatedAt = new Date().toISOString();
+  if (order.username) {
+    addNotification(order.username, "Order Status Updated", `${order.orderId} changed from ${oldStatus} to ${newStatus}.`, newStatus === "Cancelled" ? "warning" : "success");
+  }
   saveOrders();
   renderOrderHistory();
   updateAdminDashboard();
@@ -1326,6 +1662,11 @@ clearAddedProductsBtn.addEventListener("click", function() {
   addedProducts = [];
 
   addedProductIds.forEach(productId => {
+    const product = addedProducts.find(item => item.id === productId);
+    if (product) {
+      deletedProductArchive = deletedProductArchive.filter(item => Number(item.id) !== Number(productId));
+      deletedProductArchive.push({ ...product, deletedAt: new Date().toISOString() });
+    }
     delete productEdits[productId];
     if (!deletedProductIds.includes(productId)) deletedProductIds.push(productId);
   });
@@ -1336,7 +1677,7 @@ clearAddedProductsBtn.addEventListener("click", function() {
   saveAddedProducts();
   saveProductEdits();
   saveDeletedProducts();
-  saveProductReviews();
+  saveDeletedProductArchive();
   saveCart();
   saveWishlist();
   rebuildProducts();
@@ -1391,6 +1732,7 @@ clearOrderHistoryBtn.addEventListener("click", function() {
 
   saveOrders();
   renderOrderHistory();
+  renderAdminCustomers();
   updateAdminDashboard();
 });
 
@@ -1413,6 +1755,39 @@ document.addEventListener("keydown", function(event) {
 
 if (orderStatusFilter) {
   orderStatusFilter.addEventListener("change", renderOrderHistory);
+}
+
+
+if (shippingSettingsForm) {
+  shippingSettingsForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    if (!currentUserIsAdmin()) return;
+    const shippingFee = Math.max(0, Number(shippingFeeInput.value || 0));
+    const freeShippingThreshold = Math.max(0, Number(freeShippingThresholdInput.value || 0));
+    storeSettings = { shippingFee, freeShippingThreshold };
+    saveStoreSettings();
+    renderShippingSettings();
+    showAdminMessage("Shipping settings have been saved.");
+  });
+}
+
+if (clearNotificationsBtn) {
+  clearNotificationsBtn.addEventListener("click", function() {
+    const user = getLoggedInUserFromStorage();
+    if (!user) return;
+    const confirmClear = confirm("Clear your notifications?");
+    if (!confirmClear) return;
+    saveNotifications(user.username, []);
+    renderNotifications();
+  });
+}
+
+if (clearRecentlyViewedBtn) {
+  clearRecentlyViewedBtn.addEventListener("click", function() {
+    recentlyViewed = [];
+    saveRecentlyViewed();
+    renderRecentlyViewed();
+  });
 }
 
 categoryFilter.addEventListener("change", filterProducts);
