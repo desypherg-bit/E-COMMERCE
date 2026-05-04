@@ -14,10 +14,11 @@ let wishlist = [];
 
 const DEFAULT_STOCK = 10;
 const LOW_STOCK_LIMIT = 5;
-const ORDER_STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+const ORDER_STATUSES = ["Pending", "Processing", "Cancellation Requested", "Shipped", "Delivered", "Cancelled"];
 
 const productList = document.getElementById("productList");
 const categoryFilter = document.getElementById("categoryFilter");
+const sortFilter = document.getElementById("sortFilter");
 const searchInput = document.getElementById("searchInput");
 const cartItems = document.getElementById("cartItems");
 const cartCount = document.getElementById("cartCount");
@@ -73,6 +74,7 @@ const reviewComment = document.getElementById("reviewComment");
 const submitReviewBtn = document.getElementById("submitReviewBtn");
 const reviewMessage = document.getElementById("reviewMessage");
 const productReviewList = document.getElementById("productReviewList");
+const relatedProducts = document.getElementById("relatedProducts");
 
 const newProductName = document.getElementById("newProductName");
 const newProductPrice = document.getElementById("newProductPrice");
@@ -419,9 +421,10 @@ function renderWishlist() {
 
 function getFilteredProducts() {
   const selectedCategory = categoryFilter.value;
+  const selectedSort = sortFilter ? sortFilter.value : "default";
   const searchTerm = searchInput.value.toLowerCase();
 
-  return products.filter(product => {
+  const filtered = products.filter(product => {
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm) ||
@@ -430,6 +433,24 @@ function getFilteredProducts() {
 
     return matchesCategory && matchesSearch;
   });
+
+  return sortProducts(filtered, selectedSort);
+}
+
+function sortProducts(items, sortType) {
+  const sortedItems = [...items];
+
+  if (sortType === "price-low") {
+    sortedItems.sort((a, b) => Number(a.price) - Number(b.price));
+  } else if (sortType === "price-high") {
+    sortedItems.sort((a, b) => Number(b.price) - Number(a.price));
+  } else if (sortType === "rating-high") {
+    sortedItems.sort((a, b) => getReviewStats(b.id).average - getReviewStats(a.id).average);
+  } else if (sortType === "newest") {
+    sortedItems.sort((a, b) => Number(b.id) - Number(a.id));
+  }
+
+  return sortedItems;
 }
 
 function displayProducts(items) {
@@ -505,6 +526,7 @@ function openProductModal(productId) {
 
   clearReviewMessage();
   renderProductReviews(product.id);
+  renderRelatedProducts(product.id);
   productModal.classList.remove("hidden");
   document.body.classList.add("modal-open");
 
@@ -518,6 +540,43 @@ function openProductModal(productId) {
   });
 }
 
+
+
+function renderRelatedProducts(productId) {
+  if (!relatedProducts) return;
+
+  const product = products.find(item => item.id === productId);
+  if (!product) {
+    relatedProducts.innerHTML = "<p>No related products found.</p>";
+    return;
+  }
+
+  const related = products
+    .filter(item => item.id !== product.id && item.category === product.category)
+    .slice(0, 4);
+
+  relatedProducts.innerHTML = "";
+
+  if (related.length === 0) {
+    relatedProducts.innerHTML = "<p>No related products found.</p>";
+    return;
+  }
+
+  related.forEach(item => {
+    const row = document.createElement("div");
+    row.classList.add("related-product-card");
+    row.innerHTML = `
+      <img src="${item.image}" alt="${item.name}">
+      <div>
+        <strong>${item.name}</strong>
+        <small>${item.category}</small>
+        <span>${formatMoney(item.price)}</span>
+      </div>
+      <button type="button" onclick="openProductModal(${item.id})">View</button>
+    `;
+    relatedProducts.appendChild(row);
+  });
+}
 
 function renderProductReviews(productId) {
   if (!productReviewList || !modalReviewSummary) return;
@@ -994,6 +1053,15 @@ function renderOrderHistory() {
       `
       : "";
 
+    const receiptButton = `<a href="receipt.html?orderId=${encodeURIComponent(order.orderId)}" class="order-link-btn">View Receipt</a>`;
+    const canRequestCancellation = user && user.role !== "admin" && ["Pending", "Processing"].includes(status);
+    const cancelRequestButton = canRequestCancellation
+      ? `<button type="button" class="order-link-btn danger-link-btn" onclick="requestOrderCancellation('${order.orderId}')">Request Cancellation</button>`
+      : "";
+    const cancellationNote = status === "Cancellation Requested"
+      ? `<small class="cancellation-note">Cancellation requested. Waiting for admin approval.</small>`
+      : "";
+
     row.innerHTML = `
       <div class="order-history-main">
         <div class="order-title-line">
@@ -1005,16 +1073,50 @@ function renderOrderHistory() {
         ${discountLine}
         <small>Customer: ${order.customerName} • ${order.customerPhone || "No phone"} • ${order.customerEmail || "No email"}</small>
         <small>Address: ${order.deliveryAddress || "No address"}</small>
+        ${cancellationNote}
       </div>
       <div class="order-total-block">
         <strong>${formatMoney(order.totalPrice)}</strong>
         <small>${order.accountName || order.customerName}</small>
+        ${receiptButton}
+        ${cancelRequestButton}
         ${adminStatusControl}
       </div>
     `;
 
     orderHistoryItems.appendChild(row);
   });
+}
+
+
+function requestOrderCancellation(orderId) {
+  const user = getLoggedInUserFromStorage();
+  if (!user || user.role === "admin") return;
+
+  loadOrders();
+  const order = orders.find(item => item.orderId === orderId && item.username === user.username);
+
+  if (!order) {
+    alert("Order not found.");
+    renderOrderHistory();
+    return;
+  }
+
+  if (!["Pending", "Processing"].includes(order.status)) {
+    alert("Cancellation can only be requested while an order is Pending or Processing.");
+    renderOrderHistory();
+    return;
+  }
+
+  const confirmRequest = confirm(`Request cancellation for ${order.orderId}?`);
+  if (!confirmRequest) return;
+
+  order.status = "Cancellation Requested";
+  order.cancellationRequestedAt = new Date().toISOString();
+  order.statusUpdatedAt = new Date().toISOString();
+  saveOrders();
+  renderOrderHistory();
+  updateAdminDashboard();
 }
 
 function updateOrderStatus(orderId, newStatus) {
@@ -1053,7 +1155,7 @@ function updateAdminDashboard() {
   orders = (JSON.parse(localStorage.getItem("blackboardOrders")) || []).map(normalizeOrderStatus);
   const totalStock = products.reduce((sum, product) => sum + product.stock, 0);
   const lowStock = products.filter(product => product.stock > 0 && product.stock <= LOW_STOCK_LIMIT).length;
-  const pendingOrders = orders.filter(order => order.status === "Pending").length;
+  const pendingOrders = orders.filter(order => order.status === "Pending" || order.status === "Cancellation Requested").length;
   const deliveredOrders = orders.filter(order => order.status === "Delivered").length;
   const totalSales = orders
     .filter(order => order.status !== "Cancelled")
@@ -1314,6 +1416,7 @@ if (orderStatusFilter) {
 }
 
 categoryFilter.addEventListener("change", filterProducts);
+if (sortFilter) sortFilter.addEventListener("change", filterProducts);
 searchInput.addEventListener("input", filterProducts);
 checkoutBtn.addEventListener("click", () => {
   window.location.href = "checkout.html";

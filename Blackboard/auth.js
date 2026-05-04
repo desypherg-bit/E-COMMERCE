@@ -17,14 +17,24 @@ function requireLogin() {
   }
 }
 
+function getProfileKeyForUser(user) {
+  return `blackboardProfile_${user ? user.username : "guest"}`;
+}
+
+function getSavedProfile(user) {
+  if (!user) return {};
+  return JSON.parse(localStorage.getItem(getProfileKeyForUser(user))) || {};
+}
+
 function setupUserBar() {
   const user = getLoggedInUser();
   const welcomeUser = document.getElementById("welcomeUser");
   const logoutBtn = document.getElementById("logoutBtn");
 
   if (welcomeUser && user) {
+    const profile = getSavedProfile(user);
     const accountType = user.role === "admin" ? "Admin" : "Customer";
-    welcomeUser.textContent = `Welcome, ${user.name} (${accountType})`;
+    welcomeUser.textContent = `Welcome, ${profile.fullName || user.name} (${accountType})`;
   }
 
   if (logoutBtn) {

@@ -20,6 +20,7 @@ const summarySubtotal = document.getElementById("summarySubtotal");
 const discountSummaryRow = document.getElementById("discountSummaryRow");
 const summaryDiscountCode = document.getElementById("summaryDiscountCode");
 const summaryDiscount = document.getElementById("summaryDiscount");
+const orderReceiptLink = document.getElementById("orderReceiptLink");
 
 const DEFAULT_STOCK = 10;
 
@@ -52,6 +53,47 @@ function clearDiscountMessage() {
 
 function getLoggedInUser() {
   return JSON.parse(localStorage.getItem("blackboardUser"));
+}
+
+function getProfileKey() {
+  const user = getLoggedInUser();
+  return `blackboardProfile_${user ? user.username : "guest"}`;
+}
+
+function loadSavedProfile() {
+  return JSON.parse(localStorage.getItem(getProfileKey())) || {};
+}
+
+function saveProfileFromCheckout(customerName, customerPhone, customerEmail, deliveryAddress) {
+  const user = getLoggedInUser();
+  if (!user) return;
+
+  const profile = {
+    ...loadSavedProfile(),
+    fullName: customerName,
+    phone: customerPhone,
+    email: customerEmail,
+    address: deliveryAddress,
+    updatedAt: new Date().toISOString()
+  };
+
+  localStorage.setItem(getProfileKey(), JSON.stringify(profile));
+  localStorage.setItem("blackboardUser", JSON.stringify({ ...user, name: customerName || user.name }));
+}
+
+function prefillCheckoutDetails() {
+  const user = getLoggedInUser();
+  const profile = loadSavedProfile();
+
+  const customerName = document.getElementById("customerName");
+  const customerPhone = document.getElementById("customerPhone");
+  const customerEmail = document.getElementById("customerEmail");
+  const deliveryAddress = document.getElementById("deliveryAddress");
+
+  if (customerName && !customerName.value) customerName.value = profile.fullName || (user ? user.name : "");
+  if (customerPhone && !customerPhone.value) customerPhone.value = profile.phone || "";
+  if (customerEmail && !customerEmail.value) customerEmail.value = profile.email || "";
+  if (deliveryAddress && !deliveryAddress.value) deliveryAddress.value = profile.address || "";
 }
 
 function getCheckoutTotals() {
@@ -331,12 +373,14 @@ checkoutForm.addEventListener("submit", function(event) {
 
   const discountText = order.discountCode ? ` Discount applied: ${order.discountCode} saved ${formatMoney(order.discountAmount)}.` : "";
   orderMessage.textContent = `Thank you, ${order.customerName}. Your order number is ${order.orderId}. Your order total is ${formatMoney(order.totalPrice)} using ${paymentMethod}.${discountText}`;
+  if (orderReceiptLink) orderReceiptLink.href = `receipt.html?orderId=${encodeURIComponent(order.orderId)}`;
   orderModal.classList.remove("hidden");
 
   localStorage.removeItem("blackboardCart");
   checkoutCart = [];
 });
 
+prefillCheckoutDetails();
 updatePaymentFields();
 displayCheckoutItems();
 updateOrderSummary();

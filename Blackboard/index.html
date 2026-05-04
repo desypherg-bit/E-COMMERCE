@@ -26,6 +26,7 @@
       </div>
       <div class="user-bar">
         <span id="welcomeUser"></span>
+        <a href="profile.html" class="profile-link">Profile</a>
         <button id="logoutBtn" class="logout-btn">Logout</button>
       </div>
       <h1>The Blackboard</h1>
@@ -39,6 +40,14 @@
 
       <select id="categoryFilter">
         <option value="all">All Categories</option>
+      </select>
+
+      <select id="sortFilter">
+        <option value="default">Sort Products</option>
+        <option value="price-low">Price: Lowest to Highest</option>
+        <option value="price-high">Price: Highest to Lowest</option>
+        <option value="rating-high">Best Rating</option>
+        <option value="newest">Newest Products</option>
       </select>
 
       <div class="cart-box">
@@ -214,6 +223,7 @@
               <option value="all">All Orders</option>
               <option value="Pending">Pending</option>
               <option value="Processing">Processing</option>
+              <option value="Cancellation Requested">Cancellation Requested</option>
               <option value="Shipped">Shipped</option>
               <option value="Delivered">Delivered</option>
               <option value="Cancelled">Cancelled</option>
@@ -255,6 +265,18 @@
           <p><strong>Stock:</strong> <span id="modalProductStock"></span></p>
           <p class="modal-product-price" id="modalProductPrice"></p>
           <button id="modalAddToCartBtn" class="place-order-btn" type="button">Add to Cart</button>
+        </div>
+      </div>
+
+      <div class="related-products-box">
+        <div class="review-header">
+          <div>
+            <h3>Related Products</h3>
+            <p>Other items from the same category.</p>
+          </div>
+        </div>
+        <div id="relatedProducts" class="related-products-grid">
+          <p>No related products found.</p>
         </div>
       </div>
 

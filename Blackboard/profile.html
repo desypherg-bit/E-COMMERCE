@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile | The Blackboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="pageLoader" class="page-loader">
+    <div class="loader-board">
+      <div class="loader-spinner"></div>
+      <p>Loading The Blackboard...</p>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="container header-content">
+      <div class="board-brand">
+        <img src="assets/blackboard-logo.svg" alt="The Blackboard logo" class="board-logo-image" />
+      </div>
+      <div class="user-bar">
+        <span id="welcomeUser"></span>
+        <a href="index.html" class="profile-link">Shop</a>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+      <h1>My Profile</h1>
+      <p>Manage your saved customer details.</p>
+    </div>
+  </header>
+
+  <main class="container profile-layout">
+    <section class="checkout-card profile-card">
+      <a href="index.html" class="back-link">← Back to shop</a>
+      <h2>Customer Profile</h2>
+      <p class="checkout-note">These details can be used to auto-fill your checkout form.</p>
+
+      <form id="profileForm" class="form-grid profile-form-grid">
+        <label>
+          Full Name
+          <input type="text" id="profileName" placeholder="Enter your full name" required />
+        </label>
+
+        <label>
+          Email Address
+          <input type="email" id="profileEmail" placeholder="example@email.com" />
+        </label>
+
+        <label>
+          Mobile Number
+          <input type="tel" id="profilePhone" placeholder="09XXXXXXXXX" />
+        </label>
+
+        <label>
+          Saved Address
+          <textarea id="profileAddress" placeholder="House number, street, barangay, city"></textarea>
+        </label>
+
+        <button type="submit" class="place-order-btn full-width-field">Save Profile</button>
+        <p id="profileMessage" class="admin-message hidden full-width-field"></p>
+      </form>
+    </section>
+
+    <section class="checkout-card profile-card">
+      <h2>Quick Links</h2>
+      <div class="profile-links-grid">
+        <a href="index.html#wishlistSection" class="order-link-btn">View Wishlist</a>
+        <a href="index.html#orderHistorySection" class="order-link-btn">View Order History</a>
+        <a href="checkout.html" class="order-link-btn">Go to Checkout</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="support-footer">
+    <div class="container support-footer-content">
+      <div class="support-info">
+        <h2>Need help?</h2>
+        <p>Contact support for order concerns, product questions, or payment help.</p>
+        <p><strong>Support Email:</strong> support@theblackboard.com</p>
+      </div>
+      <form id="supportForm" class="support-form">
+        <label>Your Name<input type="text" id="supportName" placeholder="Enter your name" required /></label>
+        <label>Your Email<input type="email" id="supportEmail" placeholder="example@email.com" required /></label>
+        <label class="support-message-field">Message<textarea id="supportMessage" placeholder="How can support help you?" required></textarea></label>
+        <button type="submit">Send Email to Support</button>
+        <p id="supportStatus" class="support-status hidden"></p>
+      </form>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="profile.js"></script>
+  <script src="support.js"></script>
+</body>
+</html>

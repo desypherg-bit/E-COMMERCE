@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipt | The Blackboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="pageLoader" class="page-loader">
+    <div class="loader-board">
+      <div class="loader-spinner"></div>
+      <p>Loading The Blackboard...</p>
+    </div>
+  </div>
+
+  <header class="header receipt-header-no-print">
+    <div class="container header-content">
+      <div class="board-brand">
+        <img src="assets/blackboard-logo.svg" alt="The Blackboard logo" class="board-logo-image" />
+      </div>
+      <div class="user-bar">
+        <span id="welcomeUser"></span>
+        <a href="profile.html" class="profile-link">Profile</a>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+      <h1>Receipt</h1>
+      <p>View or print your order invoice.</p>
+    </div>
+  </header>
+
+  <main class="container receipt-page">
+    <section class="checkout-card receipt-card">
+      <div class="receipt-actions receipt-no-print">
+        <a href="index.html#orderHistorySection" class="back-link">← Back to orders</a>
+        <button id="printReceiptBtn" class="place-order-btn" type="button">Print Receipt</button>
+      </div>
+
+      <div id="receiptContent">
+        <h2>The Blackboard</h2>
+        <p>Official Order Receipt</p>
+        <div id="receiptDetails"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="receipt.js"></script>
+</body>
+</html>
