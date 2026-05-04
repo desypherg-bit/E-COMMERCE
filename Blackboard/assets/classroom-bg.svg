@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7f1e3"/>
+      <stop offset="100%" stop-color="#ece1c8"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4b48b"/>
+      <stop offset="100%" stop-color="#b88757"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="850" fill="url(#wall)"/>
+  <rect y="850" width="1600" height="350" fill="url(#floor)"/>
+  <rect x="90" y="120" width="480" height="255" rx="14" fill="#dde8f2" stroke="#ffffff" stroke-width="14"/>
+  <rect x="1000" y="110" width="330" height="220" rx="18" fill="#fefefe" stroke="#d4d8dd" stroke-width="10"/>
+  <g opacity="0.22" stroke="#8c6e48" stroke-width="8">
+    <path d="M0 850h1600"/>
+    <path d="M0 915h1600"/>
+    <path d="M0 980h1600"/>
+    <path d="M0 1045h1600"/>
+    <path d="M0 1110h1600"/>
+  </g>
+  <g opacity="0.16" fill="#8f6a43">
+    <rect x="190" y="930" width="220" height="32" rx="10"/>
+    <rect x="530" y="980" width="220" height="32" rx="10"/>
+    <rect x="930" y="920" width="220" height="32" rx="10"/>
+    <rect x="1220" y="990" width="220" height="32" rx="10"/>
+  </g>
+</svg>

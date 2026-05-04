@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "Wireless Mouse",
+    "category": "Accessories",
+    "price": 499,
+    "image": "https://www.itech.ph/wp-content/uploads/2020/09/LOGITECH-G304-LIGHTSPEED-WIRELESS-GAMING-MOUSE-WHITE.png",
+    "description": "Ergonomic wireless mouse with smooth tracking."
+  },
+  {
+    "id": 2,
+    "name": "Mechanical Keyboard",
+    "category": "Accessories",
+    "price": 1499,
+    "image": "https://rkgamingstore.com/cdn/shop/files/R7575_WiredGamingKeyboard_QMKVIA_4.png?v=1762463287&width=1946",
+    "description": "Compact mechanical keyboard with RGB lighting."
+  },
+  {
+    "id": 3,
+    "name": "Bluetooth Speaker",
+    "category": "Electronics",
+    "price": 999,
+    "image": "https://www.sencor.com/getmedia/53d54418-3de4-4fe8-a503-5edb74cac646/35059173.jpg.aspx?width=2100&height=2100&ext=.jpg",
+    "description": "Portable speaker with powerful sound quality."
+  },
+  {
+    "id": 4,
+    "name": "Smart Watch",
+    "category": "Electronics",
+    "price": 2499,
+    "image": "https://cdsassets.apple.com/live/7WUAS350/images/tech-specs/apple-watch-series-9.png",
+    "description": "Track fitness, notifications, and health data."
+  },
+  {
+    "id": 5,
+    "name": "Backpack",
+    "category": "Fashion",
+    "price": 799,
+    "image": "https://paktbags.com/cdn/shop/files/PDP_35L_Backpack-PAKT-6-14-23-25138_524dfb70-e013-4e6c-85aa-53080a4b1cab.jpg?v=1726097709",
+    "description": "Durable and stylish backpack for everyday use."
+  },
+  {
+    "id": 6,
+    "name": "Running Shoes",
+    "category": "Fashion",
+    "price": 1899,
+    "image": "https://images.journeys.com/images/products/1_698756_FS_ALT1.JPG",
+    "description": "Lightweight shoes perfect for running and walking."
+  },
+  {
+    "id": 7,
+    "name": "Motherboard",
+    "category": "Electronics",
+    "price": 6500,
+    "image": "https://ecommerce.datablitz.com.ph/cdn/shop/files/B550M_20Pro_20RS_L1_800x.jpg?v=1754700234",
+    "description": "Heart of the Computer."
+  },
+  {
+    "id": 8,
+    "name": "Polo",
+    "category": "Fashion",
+    "price": 1500,
+    "image": "https://down-ph.img.susercontent.com/file/ph-11134207-7qul3-lg5iqdalpe2ga9",
+    "description": "Comfortable and Stylish all in one package."
+  }
+]

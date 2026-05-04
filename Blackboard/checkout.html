@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | The Blackboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="pageLoader" class="page-loader">
+    <div class="loader-board">
+      <div class="loader-spinner"></div>
+      <p>Loading The Blackboard...</p>
+    </div>
+  </div>
+  <header class="header">
+    <div class="container header-content">
+      <div class="board-brand">
+        <img src="assets/blackboard-logo.svg" alt="The Blackboard logo" class="board-logo-image" />
+        <div class="chalk-doodles" aria-hidden="true">
+          <span class="doodle doodle-1">★</span>
+          <span class="doodle doodle-2">⌘</span>
+          <span class="doodle doodle-3">+</span>
+          <span class="doodle doodle-4">⌂</span>
+        </div>
+      </div>
+      <div class="user-bar">
+        <span id="welcomeUser"></span>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+      <h1>Checkout</h1>
+      <p>Complete your order from The Blackboard.</p>
+    </div>
+  </header>
+
+  <main class="container checkout-layout">
+    <section class="checkout-card">
+      <a href="index.html" class="back-link">← Back to shop</a>
+      <h2>Customer Details</h2>
+
+      <form id="checkoutForm">
+        <div class="form-grid">
+          <label>
+            Full Name
+            <input type="text" id="customerName" placeholder="Enter your full name" required />
+          </label>
+
+          <label>
+            Mobile Number
+            <input type="tel" id="customerPhone" placeholder="09XXXXXXXXX" required />
+          </label>
+
+          <label>
+            Email Address
+            <input type="email" id="customerEmail" placeholder="example@email.com" required />
+          </label>
+
+          <label>
+            Delivery Address
+            <textarea id="deliveryAddress" placeholder="House number, street, barangay, city" required></textarea>
+          </label>
+        </div>
+
+        <h2>Payment Method</h2>
+
+        <div class="payment-options">
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" value="Cash on Delivery" checked />
+            <span>
+              <strong>Cash on Delivery</strong>
+              <small>Pay in cash when your order arrives.</small>
+            </span>
+          </label>
+
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" value="Debit/Credit Card" />
+            <span>
+              <strong>Debit/Credit Card</strong>
+              <small>Enter card details for a sample checkout only.</small>
+            </span>
+          </label>
+
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" value="GCash" />
+            <span>
+              <strong>GCash</strong>
+              <small>Enter your GCash number and reference details.</small>
+            </span>
+          </label>
+        </div>
+
+        <div id="cardFields" class="payment-fields hidden">
+          <h3>Card Details</h3>
+          <div class="form-grid three-columns">
+            <label>
+              Card Number
+              <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" />
+            </label>
+            <label>
+              Expiry Date
+              <input type="text" id="cardExpiry" placeholder="MM/YY" />
+            </label>
+            <label>
+              CVV
+              <input type="password" id="cardCvv" placeholder="123" />
+            </label>
+          </div>
+        </div>
+
+        <div id="gcashFields" class="payment-fields hidden">
+          <h3>GCash Details</h3>
+          <div class="form-grid">
+            <label>
+              GCash Number
+              <input type="tel" id="gcashNumber" placeholder="09XXXXXXXXX" />
+            </label>
+            <label>
+              Reference Number
+              <input type="text" id="gcashReference" placeholder="Enter reference number" />
+            </label>
+          </div>
+        </div>
+
+        <p class="checkout-note">
+          Note: This is a frontend demo. Debit/Credit and GCash are not connected to a real payment gateway yet.
+        </p>
+
+        <button type="submit" class="place-order-btn">Place Order</button>
+      </form>
+    </section>
+
+    <aside class="checkout-card order-summary">
+      <h2>Order Summary</h2>
+      <div id="checkoutItems" class="checkout-items"></div>
+
+      <div class="discount-code-box">
+        <h3>Discount Code</h3>
+        <div class="discount-code-row">
+          <input type="text" id="checkoutDiscountCode" placeholder="Enter discount code" />
+          <button type="button" id="applyDiscountBtn">Apply</button>
+        </div>
+        <button type="button" id="removeDiscountBtn" class="secondary-btn hidden">Remove Discount</button>
+        <p id="discountMessage" class="discount-message hidden"></p>
+      </div>
+
+      <div class="summary-row">
+        <span>Items</span>
+        <strong id="summaryItems">0</strong>
+      </div>
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <strong id="summarySubtotal">₱0.00</strong>
+      </div>
+      <div id="discountSummaryRow" class="summary-row hidden">
+        <span>Discount <small id="summaryDiscountCode"></small></span>
+        <strong id="summaryDiscount">-₱0.00</strong>
+      </div>
+      <div class="summary-row total-row">
+        <span>Total</span>
+        <strong id="summaryTotal">₱0.00</strong>
+      </div>
+    </aside>
+  </main>
+
+  <div id="orderModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Order Placed Successfully!</h2>
+      <p id="orderMessage"></p>
+      <a href="index.html" class="place-order-btn modal-btn">Return to Shop</a>
+    </div>
+  </div>
+
+  <footer class="support-footer">
+    <div class="container support-footer-content">
+      <div class="support-info">
+        <h2>Need help?</h2>
+        <p>Contact support for order concerns, product questions, or payment help.</p>
+        <p><strong>Support Email:</strong> support@theblackboard.com</p>
+      </div>
+
+      <form id="supportForm" class="support-form">
+        <label>
+          Your Name
+          <input type="text" id="supportName" placeholder="Enter your name" required />
+        </label>
+
+        <label>
+          Your Email
+          <input type="email" id="supportEmail" placeholder="example@email.com" required />
+        </label>
+
+        <label class="support-message-field">
+          Message
+          <textarea id="supportMessage" placeholder="How can support help you?" required></textarea>
+        </label>
+
+        <button type="submit">Send Email to Support</button>
+        <p id="supportStatus" class="support-status hidden"></p>
+      </form>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="checkout.js"></script>
+  <script src="support.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | The Blackboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="login-body">
+  <div id="pageLoader" class="page-loader">
+    <div class="loader-board">
+      <div class="loader-spinner"></div>
+      <p>Loading The Blackboard...</p>
+    </div>
+  </div>
+  <main class="login-page">
+    <section class="login-card">
+      <div class="login-brand">
+        <img src="assets/blackboard-logo.svg" alt="The Blackboard logo" class="login-board-logo-image" />
+        <h1>The Blackboard</h1>
+        <p>Login to continue shopping for your computer needs.</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <label>
+          Username
+          <input type="text" id="username" placeholder="Enter username" required />
+        </label>
+
+        <label>
+          Password
+          <div class="password-row">
+            <input type="password" id="password" placeholder="Enter password" required />
+            <button type="button" id="togglePassword">Show</button>
+          </div>
+        </label>
+
+        <p id="loginError" class="login-error hidden"></p>
+
+        <button type="submit" class="place-order-btn">Login</button>
+      </form>
+
+      <div class="demo-account">
+        <strong>Demo Accounts</strong>
+        <p>Username: <b>admin</b> | Password: <b>admin123</b></p>
+        <p>Username: <b>customer</b> | Password: <b>customer123</b></p>
+      </div>
+    </section>
+  </main>
+  <footer class="support-footer">
+    <div class="container support-footer-content">
+      <div class="support-info">
+        <h2>Need help?</h2>
+        <p>Contact support for order concerns, product questions, or payment help.</p>
+        <p><strong>Support Email:</strong> support@theblackboard.com</p>
+      </div>
+
+      <form id="supportForm" class="support-form">
+        <label>
+          Your Name
+          <input type="text" id="supportName" placeholder="Enter your name" required />
+        </label>
+
+        <label>
+          Your Email
+          <input type="email" id="supportEmail" placeholder="example@email.com" required />
+        </label>
+
+        <label class="support-message-field">
+          Message
+          <textarea id="supportMessage" placeholder="How can support help you?" required></textarea>
+        </label>
+
+        <button type="submit">Send Email to Support</button>
+        <p id="supportStatus" class="support-status hidden"></p>
+      </form>
+    </div>
+  </footer>
+
+
+  <script src="login.js"></script>
+  <script src="support.js"></script>
+</body>
+</html>
