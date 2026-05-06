@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us | The Blackboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="pageLoader" class="page-loader">
+    <div class="loader-board">
+      <div class="loader-spinner"></div>
+      <p>Loading The Blackboard...</p>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="container header-content">
+      <div class="board-brand">
+        <img src="assets/blackboard-logo.svg" alt="The Blackboard logo" class="board-logo-image" />
+        <div class="chalk-doodles" aria-hidden="true">
+          <span class="doodle doodle-1">★</span>
+          <span class="doodle doodle-2">⌘</span>
+          <span class="doodle doodle-3">+</span>
+          <span class="doodle doodle-4">⌂</span>
+        </div>
+      </div>
+      <div class="user-bar about-nav-bar">
+        <a href="index.html" class="profile-link">Shop</a>
+        <a href="profile.html" class="profile-link">Profile</a>
+        <a href="login.html" class="profile-link">Login</a>
+      </div>
+      <h1>About Us</h1>
+      <p>Meet the people behind The Blackboard.</p>
+    </div>
+  </header>
+
+  <main class="container about-page">
+    <section class="about-intro-card">
+      <h2>Our Team</h2>
+      <p>
+        The Blackboard is a computer shop concept built around accessibility, teamwork, and helpful service.
+        Use the tabs below to See the Seven members responsible for the Blackboard Project.
+      </p>
+    </section>
+
+    <section class="about-tabs-section">
+      <div class="about-tab-buttons" id="aboutTabButtons" role="tablist" aria-label="Team member tabs"></div>
+      <article class="about-profile-card" id="aboutProfileCard"></article>
+    </section>
+  </main>
+
+  <footer class="support-footer">
+    <div class="container support-footer-content">
+      <div class="support-info">
+        <h2>Need help?</h2>
+        <p>Contact support for order concerns, product questions, or payment help.</p>
+        <p><strong>Support Email:</strong> support@theblackboard.com</p>
+      </div>
+
+      <form id="supportForm" class="support-form">
+        <label>
+          Your Name
+          <input type="text" id="supportName" placeholder="Enter your name" required />
+        </label>
+
+        <label>
+          Your Email
+          <input type="email" id="supportEmail" placeholder="example@email.com" required />
+        </label>
+
+        <label class="support-message-field">
+          Message
+          <textarea id="supportMessage" placeholder="How can support help you?" required></textarea>
+        </label>
+
+        <button type="submit">Send Email to Support</button>
+        <p id="supportStatus" class="support-status hidden"></p>
+      </form>
+    </div>
+  </footer>
+
+  <script src="about.js"></script>
+  <script src="support.js"></script>
+</body>
+</html>

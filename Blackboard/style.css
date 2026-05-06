@@ -2306,6 +2306,162 @@ body.modal-open {
 }
 
 
+/* About Us page */
+.about-page {
+  margin-bottom: 40px;
+}
+
+.about-intro-card,
+.about-tabs-section {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,247,238,0.96));
+  border: 1px solid rgba(140, 110, 72, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.about-intro-card h2 {
+  color: #213129;
+  margin-bottom: 10px;
+}
+
+.about-intro-card p {
+  line-height: 1.7;
+  color: #5f5a50;
+}
+
+.about-tabs-section {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.about-tab-buttons {
+  display: grid;
+  gap: 10px;
+}
+
+.about-tab-btn {
+  width: 100%;
+  border: 2px solid #8a5329;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #f7f0e2 0%, #eadcc0 100%);
+  color: #573117;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.2s ease;
+}
+
+.about-tab-btn:hover,
+.about-tab-btn.active {
+  background:
+    linear-gradient(rgba(20, 25, 22, 0.12), rgba(20, 25, 22, 0.12)),
+    url("assets/chalkboard-texture.svg") center / cover no-repeat;
+  color: #f7f3de;
+  transform: translateX(4px);
+}
+
+.about-profile-card {
+  min-height: 420px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  border-radius: 18px;
+  padding: 26px;
+  background:
+    linear-gradient(rgba(20, 25, 22, 0.18), rgba(20, 25, 22, 0.18)),
+    url("assets/chalkboard-texture.svg") center / cover no-repeat;
+  color: #f7f3de;
+  border: 10px solid #8a5329;
+  box-shadow: inset 0 0 38px rgba(0,0,0,0.35);
+}
+
+.about-profile-left {
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.12);
+  padding-right: 20px;
+}
+
+.about-avatar {
+  width: 125px;
+  height: 125px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid rgba(247,243,222,0.78);
+  background: rgba(255,255,255,0.06);
+  font-family: "Comic Sans MS", "Trebuchet MS", cursive, sans-serif;
+  font-size: 44px;
+  font-weight: bold;
+  text-shadow: 0 0 1px rgba(255,255,255,0.8);
+}
+
+.about-profile-left h2 {
+  font-family: "Comic Sans MS", "Trebuchet MS", cursive, sans-serif;
+  margin-bottom: 8px;
+}
+
+.about-role {
+  color: #f5df9b;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.about-email {
+  color: #d8e8ff;
+  font-size: 14px;
+}
+
+.about-profile-right {
+  display: grid;
+  gap: 14px;
+  line-height: 1.7;
+}
+
+.about-profile-right h3 {
+  color: #f5df9b;
+}
+
+.about-motto {
+  font-family: "Comic Sans MS", "Trebuchet MS", cursive, sans-serif;
+  font-size: 22px;
+  color: #fff8df;
+}
+
+.about-contribution-list {
+  padding-left: 20px;
+}
+
+.about-contribution-list li {
+  margin-bottom: 6px;
+}
+
+.about-fun-fact {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.login-about-link {
+  display: inline-block;
+  margin-top: 14px;
+  color: #f7f3de;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+}
+
+.login-about-link:hover {
+  text-decoration: underline;
+}
+
 /* Login page blackboard refresh */
 .login-body {
   min-height: 100vh;
@@ -2400,99 +2556,26 @@ body.modal-open {
   box-shadow: none;
 }
 
-.login-brand {
-  text-align: center;
-  margin-bottom: 22px;
-}
-
 .login-brand h1 {
   color: #f7f3de;
-  font-family: "Comic Sans MS", "Trebuchet MS", cursive, sans-serif;
-  font-size: clamp(34px, 7vw, 54px);
-  margin-bottom: 8px;
   text-shadow: 0 0 1px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.06);
 }
 
-.login-brand p {
-  color: #ece7cf;
-  line-height: 1.5;
-  text-shadow: 0 0 1px rgba(255,255,255,0.25);
-}
-
-.login-form {
-  display: grid;
-  gap: 16px;
-}
-
+.login-brand p,
 .login-form label {
-  display: grid;
-  gap: 7px;
-  color: #f5f1df;
-  font-weight: bold;
-}
-
-.login-form input {
-  width: 100%;
-  padding: 13px 14px;
-  border: 1px solid rgba(138, 83, 41, 0.45);
-  border-radius: 10px;
-  background: rgba(255,255,255,0.95);
-  color: #213129;
-}
-
-.login-form input:focus {
-  outline: 2px solid rgba(133,200,255,0.5);
-  outline-offset: 1px;
-}
-
-.password-row button {
-  border: 1px solid rgba(138, 83, 41, 0.45);
-  background: linear-gradient(180deg, #f7f0e2 0%, #eadcc0 100%);
-  color: #573117;
-  border-radius: 10px;
-  padding: 0 16px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.password-row button:hover {
-  background: linear-gradient(180deg, #fbf4e8 0%, #e9d4ad 100%);
-}
-
-.login-error {
-  background: rgba(255, 236, 236, 0.95);
-  color: #c0392b;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 14px;
+  color: #ece7cf;
 }
 
 .demo-account {
-  margin-top: 18px;
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 14px;
-  padding: 14px 16px;
-  font-size: 14px;
   color: #f0ead7;
-  line-height: 1.7;
   backdrop-filter: blur(2px);
 }
 
-.demo-account strong {
-  color: #fff8df;
-}
-
+.demo-account strong,
 .demo-account b {
   color: #fff8df;
-}
-
-.login-board-logo-image {
-  width: min(420px, 100%);
-  max-width: 100%;
-  display: block;
-  margin: 0 auto 12px;
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.24));
 }
 
 .login-board-tray {
@@ -2525,7 +2608,30 @@ body.modal-open {
   right: 26px;
 }
 
+@media (max-width: 900px) {
+  .about-tabs-section,
+  .about-profile-card {
+    grid-template-columns: 1fr;
+  }
+
+  .about-profile-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding-right: 0;
+    padding-bottom: 20px;
+  }
+}
+
 @media (max-width: 768px) {
+  .about-tab-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .about-profile-card {
+    padding: 20px;
+    border-width: 8px;
+  }
+
   .login-board-shell {
     padding: 30px 18px 42px;
     border-width: 14px;
@@ -2536,18 +2642,13 @@ body.modal-open {
     padding: 10px 0 0;
   }
 
-  .login-doodle-2,
-  .login-doodle-3,
-  .login-doodle-4 {
-    font-size: 14px;
-  }
-
-  .login-doodle-4 {
-    bottom: 72px;
-    right: 24px;
-  }
-
   .login-board-tray {
     width: min(250px, 72%);
+  }
+}
+
+@media (max-width: 520px) {
+  .about-tab-buttons {
+    grid-template-columns: 1fr;
   }
 }
